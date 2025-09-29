@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run PQC",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "D:/Users/DELL/source/repos/PQC_Project/PQC.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "D:/Users/DELL/source/repos/PQC_Project",
+      "environment": [],
+      "console": "integratedTerminal",
+      "MIMode": "gdb",
+      "miDebuggerPath": "D:/MSYS2/mingw64/bin/gdb.exe"
+    }
+  ]
+}

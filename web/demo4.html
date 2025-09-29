@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子病历 - 医疗数据安全与审计系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #1abc9c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --sidebar-width: 250px;
+            --pqc-primary: #0a2463;
+            --pqc-secondary: #3e92cc;
+            --pqc-accent: #2de2be;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--pqc-primary);
+            color: white;
+            padding: 1rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 1rem 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 0.7rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* 主内容区域样式 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            color: var(--primary);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin-right: 0.5rem;
+        }
+        
+        .breadcrumb li:after {
+            content: '/';
+            margin-left: 0.5rem;
+            color: #95a5a6;
+        }
+        
+        .breadcrumb li:last-child:after {
+            content: '';
+        }
+        
+        .breadcrumb a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        /* 卡片样式 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 0.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header i {
+            color: var(--secondary);
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .btn i {
+            margin-right: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-pqc {
+            background: var(--pqc-secondary);
+        }
+        
+        .btn-pqc:hover {
+            background: #2a7bb9;
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        /* 日志条目样式 */
+        .log-entry {
+            border-left: 4px solid var(--secondary);
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            border-radius: 0 4px 4px 0;
+            transition: background 0.3s;
+        }
+        
+        .log-entry:hover {
+            background: #e9ecef;
+        }
+        
+        .log-timestamp {
+            color: #6c757d;
+            font-size: 0.85em;
+            margin-bottom: 0.3rem;
+        }
+        
+        /* 验证结果样式 */
+        .verification-success {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .verification-failure {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        /* 标签样式 */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.3rem;
+        }
+        
+        .badge-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .badge-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .badge-pqc {
+            background: var(--pqc-secondary);
+            color: white;
+        }
+        
+        /* 页面内容样式 */
+        .page-content {
+            display: none;
+        }
+        
+        .page-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 表格样式 */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th, .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* 可视化区域样式 */
+        .visualization {
+            height: 200px;
+            background: linear-gradient(135deg, var(--pqc-primary) 0%, var(--pqc-secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin: 1rem 0;
+        }
+        
+        /* 高级搜索面板 */
+        .advanced-search {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            list-style: none;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        
+        .pagination li {
+            margin: 0 0.3rem;
+        }
+        
+        .pagination a {
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .pagination a.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        /* 统计卡片样式 */
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        /* PQC-ABE 模拟器样式 */
+        .abe-simulator {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .policy-builder {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .policy-visual {
+            background: rgba(45, 226, 190, 0.1);
+            border: 1px solid var(--pqc-accent);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: monospace;
+            text-align: center;
+        }
+        
+        .attributes-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .attribute-pill {
+            background: rgba(62, 146, 204, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .attribute-pill.selected {
+            background: rgba(45, 226, 190, 0.2);
+            border-color: var(--pqc-accent);
+        }
+        
+        .encryption-process {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .data-box {
+            background: rgba(0, 0, 0, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            border: 1px solid #ddd;
+        }
+        
+        .process-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        /* 区块链查看器样式 */
+        .blockchain-viewer {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .block {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--pqc-secondary);
+        }
+        
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--pqc-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .transaction {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .transaction i {
+            font-size: 1rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+                padding: 1rem 0.5rem;
+            }
+            
+            .sidebar-header h2, .sidebar-menu span {
+                display: none;
+            }
+            
+            .sidebar-menu i {
+                margin-right: 0;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                width: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar.active {
+                width: var(--sidebar-width);
+                padding: 1rem;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1000;
+                background: var(--primary);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 0.5rem;
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 侧边导航 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div style="font-size: 2rem; color: var(--pqc-accent);">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>晶格链盾</h2>
+            <p style="font-size: 0.8rem; margin-top: 5px;">医疗数据安全系统</p>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="#dashboard" class="active" onclick="showPage('dashboard')"><i class="fas fa-tachometer-alt"></i> <span>控制面板</span></a></li>
+            <li><a href="#policy-manager" onclick="showPage('policy-manager')"><i class="fas fa-list-alt"></i> <span>策略管理</span></a></li>
+            <li><a href="#abe-simulator" onclick="showPage('abe-simulator')"><i class="fas fa-lock"></i> <span>PQC-ABE 加密</span></a></li>
+            <li><a href="#blockchain-audit" onclick="showPage('blockchain-audit')"><i class="fas fa-link"></i> <span>区块链审计</span></a></li>
+            <li><a href="#access-log" onclick="showPage('access-log')"><i class="fas fa-list"></i> <span>访问日志</span></a></li>
+            <li><a href="#verification" onclick="showPage('verification')"><i class="fas fa-check-circle"></i> <span>签名验证</span></a></li>
+            <li><a href="#analysis" onclick="showPage('analysis')"><i class="fas fa-chart-line"></i> <span>安全分析</span></a></li>
+        </ul>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(0,0,0,0.1); border-radius: 8px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="width: 40px; height: 40px; background: var(--pqc-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">张</div>
+                <div style="margin-left: 10px;">
+                    <div style="font-weight: bold;">张明医生</div>
+                    <div style="font-size: 0.8rem; color: var(--pqc-accent);">神经内科 | A医院</div>
+                </div>
+            </div>
+            <div style="font-size: 0.8rem;">
+                <div><i class="fas fa-key"></i> PQC密钥状态: <span style="color: var(--success);">有效</span></div>
+                <div><i class="fas fa-fingerprint"></i> 属性: 神经内科, A医院, 主治医师</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 控制面板页面 -->
+        <div id="dashboard" class="page-content active">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> 控制面板</h1>
+                <ul class="breadcrumb">
+                    <li><a href="#">首页</a></li>
+                    <li>控制面板</li>
+                </ul>
+            </div>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span>区块链状态</span>
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">347</div>
+                        <div class="stat-label">总区块数量</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                        <div>
+                            <div style="font-size: 0.9rem;">策略合约</div>
+                            <div style="font-weight: bold; color: var(--pqc-secondary);">运行中</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.9rem;">日志合约</div>
+                            <div style="font-weight: bold; color: var(--pqc-secondary);">运行中</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <span>安全事件</span>
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: var(--danger);">5</div>
+                        <div class="stat-label">异常访问尝试</div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>AI检测准确率</span>
+                            <span style="font-weight: bold;">98.7%</span>
+                        </div>
+                        <div style="height: 8px; background: #eee; border-radius: 4px;">
+                            <div style="height: 100%; width: 98.7%; background: var(--success); border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <span>PQC-ABE 加密</span>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">1,284</div>
+                        <div class="stat-label">受保护病历</div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>今日解密操作</span>
+                            <span style="font-weight: bold;">42次</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>策略更新</span>
+                            <span style="font-weight: bold;">3次</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>实时访问监控</span>
+                    <i class="fas fa-desktop"></i>
+                </div>
+                
+                <div class="visualization">
+                    <div style="text-align: center;">
+                        <h3>区块链医疗数据安全监控</h3>
+                        <p>正常访问: 87% | 可疑操作: 10% | 高风险: 3%</p>
+                    </div>
+                </div>
+                
+                <div id="logContainer">
+                    <!-- 实时日志将在这里显示 -->
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>AI异常检测报告</span>
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div id="aiReportContainer">
+                    <!-- AI报告将在这里显示 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 策略管理页面 -->
+        <div id="policy-manager" class="page-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-list-alt"></i> 策略管理</h1>
+                <ul class="breadcrumb">
+                    <li><a href="#">首页</a></li>
+                    <li>策略管理</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>当前访问策略</span>
+                    <i class="fas fa-policy"></i>
+                </div>
+                
+                <div class="policy-builder">
+                    <h3>策略构建器 (CP-ABE)</h3>
+                    <div class="policy-visual" id="policyDisplay">
+                        (科室="神经内科" AND 医院="A医院") OR (职位="主任医师")
+                    </div>
+                    
+                    <p>选择策略适用的属性:</p>
+                    <div class="attributes-selector">
+                        <div class="attribute-pill" onclick="togglePolicyAttribute(this, '神经内科')">神经内科</div>
+                        <div class="attribute-pill" onclick="togglePolicyAttribute(this, '心血管科')">心血管科</div>
+                        <div class="attribute-pill selected" onclick="togglePolicyAttribute(this, 'A医院')">A医院</div>
+                        <div class="attribute-pill" onclick="togglePolicyAttribute(this, 'B医院')">B医院</div>
+                        <div class="attribute-pill" onclick="togglePolicyAttribute(this, '主任医师')">主任医师</div>
+                        <div class="attribute-pill" onclick="togglePolicyAttribute(this, '主治医师')">主治医师</div>
+                    </div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-pqc" onclick="updatePolicy()">
+                            <i class="fas fa-pen"></i> 更新策略
+                        </button>
+                        <button class="btn" onclick="deployPolicyToBlockchain()">
+                            <i class="fas fa-cloud-upload-alt"></i> 部署到区块链
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>策略变更历史</span>
+                    <i class="fas fa-history"></i>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>时间戳</th>
+                                <th>策略ID</th>
+                                <th>操作者</th>
+                                <th>变更内容</th>
+                                <th>区块高度</th>
+                                <th>PQC签名</th>
+                            </tr>
+                        </thead>
+                        <tbody id="policyHistoryTable">
+                            <tr>
+                                <td>2023-10-05 14:28:31</td>
+                                <td>Policy_Image_Access</td>
+                                <td>管理员 (李主任)</td>
+                                <td>添加"急诊科"权限</td>
+                                <td>#283</td>
+                                <td><span class="badge badge-pqc">已验证</span></td>
+                            </tr>
+                            <tr>
+                                <td>2023-10-04 09:15:47</td>
+                                <td>Policy_Gene_Data</td>
+                                <td>管理员 (王医生)</td>
+                                <td>创建基因数据策略</td>
+                                <td>#279</td>
+                                <td><span class="badge badge-pqc">已验证</span></td>
+                            </tr>
+                            <tr>
+                                <td>2023-10-03 16:42:13</td>
+                                <td>Policy_Image_Access</td>
+                                <td>管理员 (张主任)</td>
+                                <td>移除"实习医生"权限</td>
+                                <td>#275</td>
+                                <td><span class="badge badge-pqc">已验证</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PQC-ABE 加密页面 -->
+        <div id="abe-simulator" class="page-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-lock"></i> PQC-ABE 加密演示</h1>
+                <ul class="breadcrumb">
+                    <li><a href="#">首页</a></li>
+                    <li>PQC-ABE 加密</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>基于属性的加密 (ABE) 模拟器</span>
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <div class="abe-simulator">
+                    <div class="policy-builder">
+                        <h3>当前病历访问策略</h3>
+                        <div class="policy-visual" id="abePolicyDisplay">
+                            (科室="神经内科" AND 医院="A医院") OR (职位="主任医师")
+                        </div>
+                        
+                        <p>选择您的属性:</p>
+                        <div class="attributes-selector">
+                            <div class="attribute-pill selected" onclick="toggleABEAttribute(this, '神经内科')">神经内科</div>
+                            <div class="attribute-pill selected" onclick="toggleABEAttribute(this, 'A医院')">A医院</div>
+                            <div class="attribute-pill" onclick="toggleABEAttribute(this, '主任医师')">主任医师</div>
+                            <div class="attribute-pill" onclick="toggleABEAttribute(this, '心血管科')">心血管科</div>
+                            <div class="attribute-pill" onclick="toggleABEAttribute(this, 'B医院')">B医院</div>
+                            <div class="attribute-pill" onclick="toggleABEAttribute(this, '住院医师')">住院医师</div>
+                        </div>
+                    </div>
+                    
+                    <div class="encryption-process">
+                        <div class="data-box" id="plainData">
+                            原始医疗数据: 患者心电图报告，显示窦性心律不齐，建议进一步检查...
+                        </div>
+                        
+                        <div class="process-buttons">
+                            <button class="btn btn-pqc" onclick="encryptData()">
+                                <i class="fas fa-lock"></i> 使用PQC-ABE加密
+                            </button>
+                            <button class="btn btn-success" onclick="decryptData()">
+                                <i class="fas fa-unlock"></i> 尝试解密
+                            </button>
+                        </div>
+                        
+                        <div class="data-box" id="encryptedData">
+                            加密状态: 等待加密操作...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>解密操作记录</span>
+                    <i class="fas fa-history"></i>
+                </div>
+                
+                <div id="decryptionLogs">
+                    <!-- 解密日志将在这里显示 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 区块链审计页面 -->
+        <div id="blockchain-audit" class="page-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-link"></i> 区块链审计</h1>
+                <ul class="breadcrumb">
+                    <li><a href="#">首页</a></li>
+                    <li>区块链审计</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>区块链浏览器</span>
+                    <i class="fas fa-link"></i>
+                </div>
+                
+                <div class="blockchain-viewer" id="blockchainViewer">
+                    <div class="block">
+                        <div class="block-header">
+                            <span>区块 #283</span>
+                            <span>2023-10-05 14:28:31</span>
+                        </div>
+                        <div class="transaction">
+                            <i class="fas fa-check-circle success"></i> 策略更新: 病历#3827 - 神经内科, A医院
+                        </div>
+                        <div class="transaction">
+                            <i class="fas fa-check-circle success"></i> 数据访问: 医生张明 - 病历#2915 - 成功
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-header">
+                            <span>区块 #282</span>
+                            <span>2023-10-05 14:25:18</span>
+                        </div>
+                        <div class="transaction">
+                            <i class="fas fa-check-circle success"></i> 数据访问: 医生李华 - 病历#3827 - 成功
+                        </div>
+                        <div class="transaction">
+                            <i class="fas fa-times-circle error"></i> 数据访问: 医生王鹏 - 病历#2915 - 权限不足
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-header">
+                            <span>区块 #281</span>
+                            <span>2023-10-05 14:22:05</span>
+                        </div>
+                        <div class="transaction">
+                            <i class="fas fa-check-circle success"></i> 新策略创建: 基因数据访问权限
+                        </div>
+                        <div class="transaction">
+                            <i class="fas fa-sync-alt warning"></i> 系统自动更新: 患者出院记录同步
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>按病历ID查询</span>
+                    <i class="fas fa-search"></i>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="recordSearch">病历ID</label>
+                        <input type="text" id="recordSearch" class="form-control" placeholder="输入病历ID (例如: EMR-2023-001)">
+                    </div>
+                    <div style="align-self: flex-end;">
+                        <button class="btn" onclick="searchRecord()">
+                            <i class="fas fa-search"></i> 查询
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="recordAccessHistory">
+                    <!-- 病历访问历史将在这里显示 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 访问日志页面 -->
+        <div id="access-log" class="page-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-list"></i> 访问日志</h1>
+                <ul class="breadcrumb">
+                    <li><a href="#">首页</a></li>
+                    <li>访问日志</li>
+                </ul>
+            </div>
+            
+            <div class="advanced-search">
+                <div class="search-header">
+                    <h3>高级搜索</h3>
+                    <a href="#" style="color: var(--secondary);" onclick="clearSearch()">清空条件</a>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label for="searchUser">用户</label>
+                        <select id="searchUser" class="form-control">
+                            <option value="">所有用户</option>
+                            <option value="doctor:1001">张医生</option>
+                            <option value="doctor:1002">李医生</option>
+                            <option value="nurse:2001">王护士</option>
+                            <option value="admin:5001">刘管理员</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="searchAction">操作类型</label>
+                        <select id="searchAction" class="form-control">
+                            <option value="">所有操作</option>
+                            <option value="view">查看</option>
+                            <option value="search">搜索</option>
+                            <option value="decrypt">解密</option>
+                            <option value="grant">授权</option>
+                            <option value="policy_update">策略更新</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="searchResult">操作结果</label>
+                        <select id="searchResult" class="form-control">
+                            <option value="">所有结果</option>
+                            <option value="success">成功</option>
+                            <option value="fail">失败</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="searchDate">日期范围</label>
+                        <input type="date" id="searchDate" class="form-control">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1rem; text-align: right;">
+                    <button class="btn" onclick="performSearch()">
+                        <i class="fas fa-search"></i> 搜索
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>访问日志列表</span>
+                    <i class="fas fa-history"></i>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <div>
+                        <button class="btn" onclick="exportLogs()">
+                            <i class="fas fa-download"></i> 导出
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <input type="text" id="logSearch" placeholder="搜索..." class="form-control" style="width: auto; display: inline-block;">
+                        <button class="btn" onclick="searchLogs()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="accessLogList">
+                    <!-- 访问日志列表将在这里显示 -->
+                </div>
+                
+                <ul class="pagination">
+                    <li><a href="#" onclick="changeLogPage('prev')">上一页</a></li>
+                    <li><a href="#" class="active" onclick="changeLogPage(1)">1</a></li>
+                    <li><a href="#" onclick="changeLogPage(2)">2</a></li>
+                    <li><a href="#" onclick="changeLogPage(3)">3</a></li>
+                    <li><a href="#" onclick="changeLogPage('next')">下一页</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 签名验证页面 -->
+        <div id="verification" class="page-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-check-circle"></i> 签名验证</h1>
+                <ul class="breadcrumb">
+                    <li><a href="#">首页</a></li>
+                    <li>签名验证</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>PQC签名验证工具</span>
+                    <i class="fas fa-signature"></i>
+                </div>
+                
+                <div style="padding: 1rem;">
+                    <div class="form-group">
+                        <label for="signatureInput">输入签名进行验证</label>
+                        <textarea id="signatureInput" class="form-control" rows="4" placeholder="粘贴PQC签名内容..."></textarea>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <button class="btn btn-pqc" onclick="verifySignature()">
+                            <i class="fas fa-check-circle"></i> 验证签名
+                        </button>
+                    </div>
+                    
+                    <div id="verificationResult" style="display: none;">
+                        <div class="data-box">
+                            <h4>验证结果</h4>
+                            <div id="verificationStatus"></div>
+                            <div id="verificationDetails" style="margin-top: 1rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>最近验证记录</span>
+                    <i class="fas fa-history"></i>
+                </div>
+                
+                <div id="verificationHistory">
+                    <!-- 验证历史将在这里显示 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 安全分析页面 -->
+        <div id="analysis" class="page-content">
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-chart-line"></i> 安全分析</h1>
+                <ul class="breadcrumb">
+                    <li><a href="#">首页</a></li>
+                    <li>安全分析</li>
+                </ul>
+            </div>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span>访问趋势分析</span>
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="visualization">
+                        <div style="text-align: center;">
+                            <h4>近7天访问趋势</h4>
+                            <p>正常访问: 324次 | 异常访问: 28次</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <span>异常行为分析</span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="visualization">
+                        <div style="text-align: center;">
+                            <h4>异常行为类型分布</h4>
+                            <p>权限越权: 45% | 异常时间: 30% | 频繁访问: 25%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>AI异常检测报告</span>
+                    <i class="fas fa-robot"></i>
+                </div>
+                
+                <div id="securityAnalysisReport">
+                    <!-- 安全分析报告将在这里显示 -->
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>风险用户排行</span>
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>用户</th>
+                                <th>异常次数</th>
+                                <th>风险等级</th>
+                                <th>最后活动</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>王鹏 (实习医生)</td>
+                                <td>12</td>
+                                <td><span class="badge badge-danger">高</span></td>
+                                <td>2023-10-05 13:24:18</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>李华 (心血管科)</td>
+                                <td>7</td>
+                                <td><span class="badge badge-warning">中</span></td>
+                                <td>2023-10-05 10:15:32</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>刘护士 (急诊科)</td>
+                                <td>5</td>
+                                <td><span class="badge badge-warning">中</span></td>
+                                <td>2023-10-04 22:45:11</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+        // 页面切换功能
+        function showPage(pageId) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 显示选中的页面
+            document.getElementById(pageId).classList.add('active');
+            
+            // 更新菜单激活状态
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            document.querySelector(`.sidebar-menu a[href="#${pageId}"]`).classList.add('active');
+            
+            // 页面特定初始化
+            if (pageId === 'access-log') {
+                displayAccessLogs();
+            } else if (pageId === 'verification') {
+                displayVerificationHistory();
+            } else if (pageId === 'analysis') {
+                displaySecurityAnalysis();
+            }
+        }
+        
+        // 响应式菜单切换
+        document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+        
+        // 存储生成的日志
+        let accessLogs = [];
+        let policyHistory = [];
+        let currentPolicy = "(科室=\"神经内科\" AND 医院=\"A医院\") OR (职位=\"主任医师\")";
+        let selectedABEAttributes = new Set(['神经内科', 'A医院']);
+        let selectedPolicyAttributes = new Set(['A医院']);
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 生成一些初始日志
+            for (let i = 0; i < 15; i++) {
+                generateSampleLog();
+            }
+            
+            // 初始化策略历史
+            policyHistory = [
+                {
+                    timestamp: "2023-10-05 14:28:31",
+                    policyId: "Policy_Image_Access",
+                    operator: "管理员 (李主任)",
+                    change: "添加\"急诊科\"权限",
+                    block: "#283",
+                    signature: "已验证"
+                },
+                {
+                    timestamp: "2023-10-04 09:15:47",
+                    policyId: "Policy_Gene_Data",
+                    operator: "管理员 (王医生)",
+                    change: "创建基因数据策略",
+                    block: "#279",
+                    signature: "已验证"
+                },
+                {
+                    timestamp: "2023-10-03 16:42:13",
+                    policyId: "Policy_Image_Access",
+                    operator: "管理员 (张主任)",
+                    change: "移除\"实习医生\"权限",
+                    block: "#275",
+                    signature: "已验证"
+                }
+            ];
+            
+            displayLogs();
+            displayAIReport();
+            displayDecryptionLogs();
+        });
+        
+        // 生成示例日志
+        function generateSampleLog() {
+            const users = [
+                {id: 'doctor:1001', name: '张医生'},
+                {id: 'doctor:1002', name: '李医生'},
+                {id: 'nurse:2001', name: '王护士'},
+                {id: 'admin:5001', name: '刘管理员'}
+            ];
+            
+            const actions = ['view', 'search', 'decrypt', 'grant', 'policy_update'];
+            const resources = ['EMR-2023-001', 'EMR-2023-002', 'EMR-2023-003', 'EMR-2023-004'];
+            
+            const user = users[Math.floor(Math.random() * users.length)];
+            const action = actions[Math.floor(Math.random() * actions.length)];
+            const resource = resources[Math.floor(Math.random() * resources.length)];
+            
+            const logEntry = {
+                id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+                timestamp: new Date(Date.now() - Math.floor(Math.random() * 100000000)).toISOString(),
+                userType: user.id.split(':')[0],
+                userId: user.id.split(':')[1],
+                userName: user.name,
+                action: action,
+                targetResourceId: resource,
+                result: Math.random() > 0.2 ? 'success' : 'fail',
+                signature: 'PQC-SIG-' + Math.random().toString(36).substr(2, 16).toUpperCase(),
+                merkleProof: Math.random() > 0.5 ? 'MRK-' + Math.random().toString(36).substr(2, 8).toUpperCase() : null,
+                batchId: Math.random() > 0.5 ? 'batch-' + Math.floor(1000 + Math.random() * 9000) : null
+            };
+            
+            accessLogs.unshift(logEntry);
+            return logEntry;
+        }
+        
+        // 显示日志
+        function displayLogs() {
+            const container = document.getElementById('logContainer');
+            container.innerHTML = '';
+            
+            accessLogs.slice(0, 5).forEach(log => {
+                const logElement = document.createElement('div');
+                logElement.className = 'log-entry';
+                logElement.innerHTML = `
+                    <div class="log-timestamp">${new Date(log.timestamp).toLocaleString()}</div>
+                    <strong>${log.userName}</strong> ${getActionText(log.action)} 
+                    <code>${log.targetResourceId}</code> - 
+                    <span class="${log.result === 'success' ? 'badge badge-success' : 'badge badge-danger'}">${log.result}</span>
+                    ${log.batchId ? '<span style="float:right;"><span class="badge badge-info">已上链</span></span>' : ''}
+                `;
+                container.appendChild(logElement);
+            });
+        }
+        
+        // 显示AI报告
+        function displayAIReport() {
+            const container = document.getElementById('aiReportContainer');
+            container.innerHTML = '';
+            
+            const reports = [
+                { type: 'warning', message: '检测到用户 王鹏 多次尝试访问权限外病历', time: '2023-10-05 13:24:18' },
+                { type: 'info', message: '策略 Policy_Image_Access 已更新，影响 42 个病历', time: '2023-10-05 14:28:31' },
+                { type: 'danger', message: '检测到异常时间访问: 刘护士 在 22:45 访问病历 EMR-2023-003', time: '2023-10-04 22:45:11' }
+            ];
+            
+            reports.forEach(report => {
+                const reportElement = document.createElement('div');
+                reportElement.className = 'log-entry';
+                reportElement.style.borderLeftColor = report.type === 'danger' ? 'var(--danger)' : 
+                                                    report.type === 'warning' ? 'var(--warning)' : 'var(--info)';
+                reportElement.innerHTML = `
+                    <div class="log-timestamp">${report.time}</div>
+                    <div><span class="badge ${report.type === 'danger' ? 'badge-danger' : report.type === 'warning' ? 'badge-warning' : 'badge-info'}">AI检测</span> ${report.message}</div>
+                `;
+                container.appendChild(reportElement);
+            });
+        }
+        
+        // 显示解密日志
+        function displayDecryptionLogs() {
+            const container = document.getElementById('decryptionLogs');
+            container.innerHTML = '';
+            
+            const logs = [
+                { time: '2023-10-05 14:15:32', user: '张医生', record: 'EMR-2023-001', result: '成功', policy: '符合策略' },
+                { time: '2023-10-05 13:24:18', user: '王医生', record: 'EMR-2023-002', result: '失败', policy: '权限不足' },
+                { time: '2023-10-05 11:42:55', user: '李医生', record: 'EMR-2023-004', result: '成功', policy: '符合策略' }
+            ];
+            
+            logs.forEach(log => {
+                const logElement = document.createElement('div');
+                logElement.className = 'log-entry';
+                logElement.innerHTML = `
+                    <div class="log-timestamp">${log.time}</div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>${log.user}</strong> 解密病历 <code>${log.record}</code>
+                            <span class="${log.result === '成功' ? 'badge badge-success' : 'badge badge-danger'}">${log.result}</span>
+                        </div>
+                        <div>
+                            <span class="badge badge-info">${log.policy}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(logElement);
+            });
+        }
+        
+        // 显示访问日志
+        function displayAccessLogs() {
+            const container = document.getElementById('accessLogList');
+            container.innerHTML = '';
+            
+            accessLogs.slice(0, 10).forEach(log => {
+                const logElement = document.createElement('div');
+                logElement.className = 'log-entry';
+                logElement.innerHTML = `
+                    <div class="log-timestamp">${new Date(log.timestamp).toLocaleString()}</div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>${log.userName}</strong> ${getActionText(log.action)} 
+                            <code>${log.targetResourceId}</code>
+                        </div>
+                        <div>
+                            <span class="${log.result === 'success' ? 'badge badge-success' : 'badge badge-danger'}">${log.result}</span>
+                            ${log.batchId ? '<span class="badge badge-info">已上链</span>' : '<span class="badge badge-warning">未上链</span>'}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(logElement);
+            });
+        }
+        
+        // 显示验证历史
+        function displayVerificationHistory() {
+            const container = document.getElementById('verificationHistory');
+            container.innerHTML = '';
+            
+            const history = [
+                { time: '2023-10-05 14:28:31', signature: 'PQC-SIG-A3F5E2C1B8D9', result: '成功', details: '策略更新签名验证' },
+                { time: '2023-10-05 13:24:18', signature: 'PQC-SIG-7D4A1B3C9E2F', result: '失败', details: '签名已过期' },
+                { time: '2023-10-05 11:42:55', signature: 'PQC-SIG-5E8C2A4B9D1F', result: '成功', details: '数据访问签名验证' }
+            ];
+            
+            history.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'log-entry';
+                itemElement.innerHTML = `
+                    <div class="log-timestamp">${item.time}</div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>签名:</strong> ${item.signature}
+                            <span class="${item.result === '成功' ? 'badge badge-success' : 'badge badge-danger'}">${item.result}</span>
+                        </div>
+                        <div>
+                            <span>${item.details}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(itemElement);
+            });
+        }
+        
+        // 显示安全分析
+        function displaySecurityAnalysis() {
+            const container = document.getElementById('securityAnalysisReport');
+            container.innerHTML = '';
+            
+            const reports = [
+                { type: 'success', message: '系统整体安全状态良好，98.7% 的访问符合策略要求' },
+                { type: 'warning', message: '检测到 3 个用户存在异常访问模式，建议加强监控' },
+                { type: 'info', message: '过去7天共阻止 28 次未授权访问尝试' }
+            ];
+            
+            reports.forEach(report => {
+                const reportElement = document.createElement('div');
+                reportElement.className = 'log-entry';
+                reportElement.style.borderLeftColor = report.type === 'success' ? 'var(--success)' : 
+                                                    report.type === 'warning' ? 'var(--warning)' : 'var(--info)';
+                reportElement.innerHTML = `
+                    <div><span class="badge ${report.type === 'success' ? 'badge-success' : report.type === 'warning' ? 'badge-warning' : 'badge-info'}">安全分析</span> ${report.message}</div>
+                `;
+                container.appendChild(reportElement);
+            });
+        }
+        
+        // 切换策略属性
+        function togglePolicyAttribute(element, attribute) {
+            if (selectedPolicyAttributes.has(attribute)) {
+                selectedPolicyAttributes.delete(attribute);
+                element.classList.remove('selected');
+            } else {
+                selectedPolicyAttributes.add(attribute);
+                element.classList.add('selected');
+            }
+        }
+        
+        // 切换ABE属性
+        function toggleABEAttribute(element, attribute) {
+            if (selectedABEAttributes.has(attribute)) {
+                selectedABEAttributes.delete(attribute);
+                element.classList.remove('selected');
+            } else {
+                selectedABEAttributes.add(attribute);
+                element.classList.add('selected');
+            }
+        }
+        
+        // 更新策略
+        function updatePolicy() {
+            const attributes = Array.from(selectedPolicyAttributes);
+            if (attributes.length === 0) {
+                alert('请至少选择一个属性！');
+                return;
+            }
+            
+            // 简单模拟策略生成
+            let newPolicy = '';
+            if (attributes.length === 1) {
+                newPolicy = `(属性="${attributes[0]}")`;
+            } else {
+                newPolicy = `(${attributes.map(attr => `属性="${attr}"`).join(' AND ')})`;
+            }
+            
+            currentPolicy = newPolicy;
+            document.getElementById('policyDisplay').textContent = newPolicy;
+            
+            // 添加到策略历史
+            policyHistory.unshift({
+                timestamp: new Date().toLocaleString(),
+                policyId: 'Policy_' + Math.random().toString(36).substr(2, 5).toUpperCase(),
+                operator: '张明医生',
+                change: '更新策略属性',
+                block: '待上链',
+                signature: '待签名'
+            });
+            
+            // 更新策略历史表格
+            updatePolicyHistoryTable();
+            
+            alert('策略已更新！');
+        }
+        
+        // 更新策略历史表格
+        function updatePolicyHistoryTable() {
+            const tableBody = document.getElementById('policyHistoryTable');
+            tableBody.innerHTML = '';
+            
+            policyHistory.slice(0, 5).forEach(policy => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${policy.timestamp}</td>
+                    <td>${policy.policyId}</td>
+                    <td>${policy.operator}</td>
+                    <td>${policy.change}</td>
+                    <td>${policy.block}</td>
+                    <td><span class="badge ${policy.signature === '已验证' ? 'badge-pqc' : 'badge-warning'}">${policy.signature}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 部署策略到区块链
+        function deployPolicyToBlockchain() {
+            // 模拟部署过程
+            setTimeout(() => {
+                if (policyHistory.length > 0) {
+                    policyHistory[0].block = '#' + (283 + Math.floor(Math.random() * 10));
+                    policyHistory[0].signature = '已验证';
+                    updatePolicyHistoryTable();
+                    
+                    // 添加到区块链查看器
+                    const blockchainViewer = document.getElementById('blockchainViewer');
+                    const newBlock = document.createElement('div');
+                    newBlock.className = 'block';
+                    newBlock.innerHTML = `
+                        <div class="block-header">
+                            <span>区块 ${policyHistory[0].block}</span>
+                            <span>${new Date().toLocaleString()}</span>
+                        </div>
+                        <div class="transaction">
+                            <i class="fas fa-check-circle success"></i> 策略更新: ${policyHistory[0].policyId}
+                        </div>
+                    `;
+                    blockchainViewer.prepend(newBlock);
+                    
+                    alert('策略已成功部署到区块链！');
+                }
+            }, 1000);
+        }
+        
+        // 加密数据
+        function encryptData() {
+            document.getElementById('encryptedData').textContent = '加密后: U2FsdGVkX1+ZlmcJ2yf5v1aZZzR3Q2gL8u3JzQN8eXK7nT0qA7bBcP/mt6VxZcW4vzBbPFzW6vGjLkCQK1rF3g==';
+            document.getElementById('encryptedData').style.color = 'var(--pqc-secondary)';
+            
+            // 添加到访问日志
+            accessLogs.unshift({
+                id: 'log-' + Date.now(),
+                timestamp: new Date().toISOString(),
+                userType: 'doctor',
+                userId: '1001',
+                userName: '张医生',
+                action: 'encrypt',
+                targetResourceId: 'EMR-2023-001',
+                result: 'success',
+                signature: 'PQC-SIG-' + Math.random().toString(36).substr(2, 16).toUpperCase(),
+                merkleProof: null,
+                batchId: null
+            });
+            
+            // 更新日志显示
+            if (document.getElementById('access-log').classList.contains('active')) {
+                displayAccessLogs();
+            }
+        }
+        
+        // 解密数据
+        function decryptData() {
+            const encryptedDataElement = document.getElementById('encryptedData');
+            
+            // 检查是否满足策略: (神经内科 AND A医院) OR 主任医师
+            const hasNeuro = selectedABEAttributes.has('神经内科');
+            const hasHospitalA = selectedABEAttributes.has('A医院');
+            const hasChief = selectedABEAttributes.has('主任医师');
+            
+            const canDecrypt = (hasNeuro && hasHospitalA) || hasChief;
+            
+            if (canDecrypt) {
+                encryptedDataElement.innerHTML = '解密成功!<br>患者心电图报告，显示窦性心律不齐，建议进一步检查...';
+                encryptedDataElement.style.color = 'var(--success)';
+                
+                // 添加到解密日志
+                const decryptionLogs = document.getElementById('decryptionLogs');
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.innerHTML = `
+                    <div class="log-timestamp">${new Date().toLocaleString()}</div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>张医生</strong> 解密病历 <code>EMR-2023-001</code>
+                            <span class="badge badge-success">成功</span>
+                        </div>
+                        <div>
+                            <span class="badge badge-info">符合策略</span>
+                        </div>
+                    </div>
+                `;
+                decryptionLogs.prepend(logEntry);
+            } else {
+                encryptedDataElement.innerHTML = '解密失败!<br>属性不满足访问策略: (科室="神经内科" AND 医院="A医院") OR (职位="主任医师")';
+                encryptedDataElement.style.color = 'var(--danger)';
+                
+                // 添加到解密日志
+                const decryptionLogs = document.getElementById('decryptionLogs');
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.innerHTML = `
+                    <div class="log-timestamp">${new Date().toLocaleString()}</div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>张医生</strong> 尝试解密病历 <code>EMR-2023-001</code>
+                            <span class="badge badge-danger">失败</span>
+                        </div>
+                        <div>
+                            <span class="badge badge-warning">权限不足</span>
+                        </div>
+                    </div>
+                `;
+                decryptionLogs.prepend(logEntry);
+            }
+            
+            // 添加到访问日志
+            accessLogs.unshift({
+                id: 'log-' + Date.now(),
+                timestamp: new Date().toISOString(),
+                userType: 'doctor',
+                userId: '1001',
+                userName: '张医生',
+                action: 'decrypt',
+                targetResourceId: 'EMR-2023-001',
+                result: canDecrypt ? 'success' : 'fail',
+                signature: 'PQC-SIG-' + Math.random().toString(36).substr(2, 16).toUpperCase(),
+                merkleProof: null,
+                batchId: null
+            });
+            
+            // 更新日志显示
+            if (document.getElementById('access-log').classList.contains('active')) {
+                displayAccessLogs();
+            }
+        }
+        
+        // 搜索病历
+        function searchRecord() {
+            const recordId = document.getElementById('recordSearch').value || 'EMR-2023-001';
+            const container = document.getElementById('recordAccessHistory');
+            
+            // 过滤相关日志
+            const relatedLogs = accessLogs.filter(log => log.targetResourceId === recordId).slice(0, 5);
+            
+            container.innerHTML = '';
+            
+            if (relatedLogs.length === 0) {
+                container.innerHTML = '<div class="log-entry">未找到相关访问记录</div>';
+                return;
+            }
+            
+            relatedLogs.forEach(log => {
+                const logElement = document.createElement('div');
+                logElement.className = 'log-entry';
+                logElement.innerHTML = `
+                    <div class="log-timestamp">${new Date(log.timestamp).toLocaleString()}</div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>${log.userName}</strong> ${getActionText(log.action)} 
+                            <span class="${log.result === 'success' ? 'badge badge-success' : 'badge badge-danger'}">${log.result}</span>
+                        </div>
+                        <div>
+                            ${log.batchId ? '<span class="badge badge-info">已上链</span>' : '<span class="badge badge-warning">未上链</span>'}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(logElement);
+            });
+        }
+        
+        // 验证签名
+        function verifySignature() {
+            const signatureInput = document.getElementById('signatureInput').value;
+            const resultContainer = document.getElementById('verificationResult');
+            const statusElement = document.getElementById('verificationStatus');
+            const detailsElement = document.getElementById('verificationDetails');
+            
+            resultContainer.style.display = 'block';
+            
+            if (signatureInput && signatureInput.includes('PQC-SIG-')) {
+                statusElement.innerHTML = '<span class="verification-success">签名验证成功！</span>';
+                detailsElement.innerHTML = `
+                    <p><strong>签名算法:</strong> CRYSTALS-Dilithium</p>
+                    <p><strong>签名者:</strong> 张明医生</p>
+                    <p><strong>时间戳:</strong> ${new Date().toLocaleString()}</p>
+                    <p><strong>签名内容:</strong> ${signatureInput.substr(0, 20)}...</p>
+                `;
+                
+                // 添加到验证历史
+                const historyContainer = document.getElementById('verificationHistory');
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'log-entry';
+                historyEntry.innerHTML = `
+                    <div class="log-timestamp">${new Date().toLocaleString()}</div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>签名:</strong> ${signatureInput.substr(0, 15)}...
+                            <span class="badge badge-success">成功</span>
+                        </div>
+                        <div>
+                            <span>手动验证</span>
+                        </div>
+                    </div>
+                `;
+                historyContainer.prepend(historyEntry);
+            } else {
+                statusElement.innerHTML = '<span class="verification-failure">签名验证失败！</span>';
+                detailsElement.innerHTML = `
+                    <p>提供的签名格式不正确或已损坏。</p>
+                    <p>请确保签名以"PQC-SIG-"开头且包含有效的签名数据。</p>
+                `;
+                
+                // 添加到验证历史
+                const historyContainer = document.getElementById('verificationHistory');
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'log-entry';
+                historyEntry.innerHTML = `
+                    <div class="log-timestamp">${new Date().toLocaleString()}</div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>签名:</strong> ${signatureInput.substr(0, 15)}...
+                            <span class="badge badge-danger">失败</span>
+                        </div>
+                        <div>
+                            <span>格式错误</span>
+                        </div>
+                    </div>
+                `;
+                historyContainer.prepend(historyEntry);
+            }
+        }
+        
+        // 执行搜索
+        function performSearch() {
+            const user = document.getElementById('searchUser').value;
+            const action = document.getElementById('searchAction').value;
+            const result = document.getElementById('searchResult').value;
+            
+            alert(`执行搜索: 用户=${user}, 操作=${action}, 结果=${result}`);
+            // 实际应用中这里会执行过滤和搜索逻辑
+        }
+        
+        // 清空搜索
+        function clearSearch() {
+            document.getElementById('searchUser').value = '';
+            document.getElementById('searchAction').value = '';
+            document.getElementById('searchResult').value = '';
+            document.getElementById('searchDate').value = '';
+        }
+        
+        // 导出日志
+        function exportLogs() {
+            alert('日志导出功能已触发！在实际应用中，这里会生成并下载日志文件。');
+        }
+        
+        // 搜索日志
+        function searchLogs() {
+            const query = document.getElementById('logSearch').value;
+            alert(`搜索日志: ${query}`);
+            // 实际应用中这里会执行日志搜索逻辑
+        }
+        
+        // 切换日志页面
+        function changeLogPage(page) {
+            alert(`切换到日志页面: ${page}`);
+            // 实际应用中这里会处理分页逻辑
+        }
+        
+        // 获取操作文本
+        function getActionText(action) {
+            const actions = {
+                'view': '查看了',
+                'search': '搜索了',
+                'decrypt': '解密了',
+                'grant': '授权了',
+                'policy_update': '更新了策略',
+                'encrypt': '加密了'
+            };
+            return actions[action] || action;
+        }
+    </script>
+</body>
+    <!-- 简易前端：生成密钥 / 上传加密 / 上传解密 -->
+    <div style="background:#fff;padding:16px;border-radius:8px;margin:16px 0;">
+    <h3>PQC 后端演示（本地）</h3>
+
+    <div style="margin-bottom:8px;">
+        <button id="btnGenKey">生成密钥对</button>
+        <span id="genKeyResult"></span>
+    </div>
+
+    <hr>
+
+    <div>
+        <h4>加密</h4>
+        <label>公钥文件: <input type="file" id="enc_pub"></label><br>
+        <label>要加密的文件: <input type="file" id="enc_file"></label><br>
+        <button id="btnEncrypt">上传并加密</button>
+        <div id="encResult"></div>
+    </div>
+
+    <hr>
+
+    <div>
+        <h4>解密</h4>
+        <label>私钥文件: <input type="file" id="dec_priv"></label><br>
+        <label>加密包(bundle): <input type="file" id="dec_bundle"></label><br>
+        <button id="btnDecrypt">上传并解密</button>
+        <div id="decResult"></div>
+    </div>
+    </div>
+
+    <script>
+    document.getElementById('btnGenKey').onclick = async () => {
+    document.getElementById('genKeyResult').textContent = '请求中...';
+    try {
+        const r = await fetch('/api/genkey', { method: 'POST' });
+        const j = await r.json();
+        if (!j.success) { document.getElementById('genKeyResult').textContent = '失败: ' + (j.error || ''); return; }
+        document.getElementById('genKeyResult').textContent = '生成成功（base64 已返回）';
+        // 显示 Base64 或提供下载
+        console.log('pub(base64):', j.pubBase64);
+        console.log('sec(base64):', j.secBase64);
+        // 如果你想把密钥保存为文件，可用下面代码保存（触发浏览器下载）:
+        downloadBase64(j.pubBase64, 'pub.key');
+        downloadBase64(j.secBase64, 'sec.key');
+    } catch (e) {
+        document.getElementById('genKeyResult').textContent = '异常: ' + e.message;
+    }
+    };
+
+    function downloadBase64(b64, filename) {
+    const blob = b64ToBlob(b64);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; document.body.appendChild(a);
+    a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+    function b64ToBlob(b64) {
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    return new Blob([bytes], { type: 'application/octet-stream' });
+    }
+
+    // 加密
+    document.getElementById('btnEncrypt').onclick = async () => {
+    const pubFile = document.getElementById('enc_pub').files[0];
+    const file = document.getElementById('enc_file').files[0];
+    if (!pubFile || !file) { alert('请上传公钥和要加密的文件'); return; }
+    const fd = new FormData();
+    fd.append('pubkey', pubFile);
+    fd.append('file', file);
+    document.getElementById('encResult').textContent = '上传并加密中...';
+    const r = await fetch('/api/encrypt', { method: 'POST', body: fd });
+    if (!r.ok) { document.getElementById('encResult').textContent = '加密失败'; return; }
+    const blob = await r.blob();
+    // 下载返回的 bundle 文件
+    const u = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = u; a.download = 'bundle.dat'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
+    document.getElementById('encResult').textContent = '加密完成，已下载 bundle.dat';
+    };
+
+    // 解密
+    document.getElementById('btnDecrypt').onclick = async () => {
+    const seckey = document.getElementById('dec_priv').files[0];
+    const bundle = document.getElementById('dec_bundle').files[0];
+    if (!seckey || !bundle) { alert('请上传私钥和 bundle'); return; }
+    const fd = new FormData();
+    fd.append('seckey', seckey);
+    fd.append('bundle', bundle);
+    document.getElementById('decResult').textContent = '上传并解密中...';
+    const r = await fetch('/api/decrypt', { method: 'POST', body: fd });
+    if (!r.ok) { document.getElementById('decResult').textContent = '解密失败'; return; }
+    const blob = await r.blob();
+    // 下载解密后的明文
+    const u = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = u; a.download = 'plain_out'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
+    document.getElementById('decResult').textContent = '解密完成，已下载 plain_out';
+    };
+    </script>
+
+</html>
